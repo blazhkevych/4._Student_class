@@ -87,11 +87,14 @@ void Student::setPhone(const char* phone)
 // Метод выводит на экран все данные (поля) студента 
 void Student::Print()
 {
-	cout << setw(10) << m_name
-		<< setw(15) << m_surname
-		<< setw(5) << m_age
-		<< setw(16) << m_phone
-		<< setw(9) << m_average << endl;
+	if (m_name != nullptr)
+	{
+		cout << setw(10) << m_name
+			<< setw(15) << m_surname
+			<< setw(5) << m_age
+			<< setw(16) << m_phone
+			<< setw(9) << m_average << endl;
+	}
 }
 
 // Метод выводит на экран "шапку" для всех данных (полей) студента 
@@ -102,6 +105,104 @@ void Student::PrintHeader()
 		<< setw(5) << "Age"
 		<< setw(16) << "Phone"
 		<< setw(9) << "Average" << endl;
+}
+
+// Функция сохраняет студента в файл
+void SaveStudent(const Student& student)
+{
+	// 2,29,30
+	char fileNameWrite[15]{ "student.data" }; // возможно нужно добавить в конце нультерминатор "\0"
+	FILE* f_wright{ nullptr };
+	fopen_s(&f_wright, fileNameWrite, "wb");
+
+	// Пишем размер поля "m_name"
+	int name_strlen = strlen(student.getName()) + 1;
+	fwrite(&name_strlen, sizeof(int), 1, f_wright);
+
+	// Пишем значение поля "m_name"
+	char* nameBuffer = new char[name_strlen];
+	memset(nameBuffer, 0, name_strlen); // а нужно ли ?
+	strcpy_s(nameBuffer, name_strlen, student.getName());
+	fwrite(&nameBuffer, name_strlen, 1, f_wright);
+
+	// Пишем размер поля "m_surname"
+	int surname_strlen = strlen(student.getSurname()) + 1;
+	fwrite(&surname_strlen, sizeof(int), 1, f_wright);
+
+	// Пишем значение поля "m_surname"
+	char* surnameBuffer = new char[surname_strlen];
+	memset(surnameBuffer, 0, surname_strlen); // а нужно ли ?
+	strcpy_s(surnameBuffer, surname_strlen, student.getSurname());
+	fwrite(&surnameBuffer, surname_strlen, 1, f_wright);
+
+	// Пишем значение поля "m_age"
+	int age = student.getAge();
+	fwrite(&age, sizeof(int), 1, f_wright);
+
+	// Пишем значение поля "m_phone"
+	char phone[15]{ 0 };
+	strcpy_s(phone, sizeof(phone), student.getPhone());
+	fwrite(&phone, 15, 1, f_wright);
+
+	// Пишем значение поля "m_average"
+	double average = student.getAverage();
+	fwrite(&average, sizeof(double), 1, f_wright);
+
+	delete[]nameBuffer;
+	delete[]surnameBuffer;
+	fclose(f_wright);
+}
+
+// Функция читает студента из файла
+void LoadStudent(Student& student)
+{
+	char fileNameRead[15]{ "student.data" }; // возможно нужно добавить в конце нультерминатор "\0"
+	FILE* f_read{ nullptr };
+	fopen_s(&f_read, fileNameRead, "rb");
+	if (f_read == nullptr)
+	{
+		perror("Error opening");
+		return;
+	}
+
+	// Читаем размер поля "m_name"
+	int name_strlen{ 0 };
+	fread(&name_strlen, sizeof(int), 1, f_read);
+
+	// Читаем значение поля "m_name"
+	char* nameBuffer = new char[name_strlen];
+	memset(nameBuffer, 0, name_strlen); // а нужно ли ?
+	fread(&nameBuffer, name_strlen, 1, f_read);
+	student.setName(nameBuffer);
+
+	// Читаем размер поля "m_surname"
+	int surname_strlen{ 0 };
+	fread(&surname_strlen, sizeof(int), 1, f_read);
+
+	// Читаем значение поля "m_surname"
+	char* surnameBuffer = new char[surname_strlen];
+	memset(surnameBuffer, 0, surname_strlen); // а нужно ли ?
+	fread(&surnameBuffer, surname_strlen, 1, f_read);
+	student.setSurname(surnameBuffer);
+
+	// Читаем значение поля "m_age"
+	int age{ 0 };
+	fread(&age, sizeof(int), 1, f_read);
+	student.setAge(age);
+
+	// Читаем значение поля "m_phone"
+	char phone[15]{ 0 };
+	fread(&phone, 15, 1, f_read);
+	student.setPhone(phone);
+
+	// Читаем значение поля "m_average"
+	double average{ 0.0 };
+	fread(&average, sizeof(double), 1, f_read);
+	student.setAverage(average);
+
+	delete[]nameBuffer;
+	delete[]surnameBuffer;
+	fclose(f_read);
 }
 
 // Функция заполнения полей студента
@@ -138,11 +239,14 @@ void InputStudent(Student& student)
 // Функция выводит на экран все данные (поля) студента
 void PrintStudent(const Student& student)
 {
-	cout << setw(10) << student.getName()
-		<< setw(15) << student.getSurname()
-		<< setw(5) << student.getAge()
-		<< setw(16) << student.getPhone()
-		<< setw(9) << student.getAverage() << endl;
+	if (student.getName() != nullptr)
+	{
+		cout << setw(10) << student.getName()
+			<< setw(15) << student.getSurname()
+			<< setw(5) << student.getAge()
+			<< setw(16) << student.getPhone()
+			<< setw(9) << student.getAverage() << endl;
+	}
 }
 
 void PrintStudentHeader(const Student& student)

@@ -26,10 +26,8 @@ public:
 	// Методы-аксессоры:
 	// Инспекторы (позволяют получить значения полей)
 	int getAge()const { return m_age; };
-	double getAverage()const { return m_average; };
-	const char* getPhone()const { return m_phone; };
-	// правий "const" (метод не изменяет обьект, не может изменять поля), 
-	// левый "const" - возврат константного чаровского указателя
+	double getAverage()const { return m_average; }; // правий "const" - метод не изменяет обьект, не может изменять поля, 
+	const char* getPhone()const { return m_phone; }; // левый "const" - возврат константного чаровского указателя.	
 	char* getName()const { return m_name; };
 	char* getSurname()const { return m_surname; };
 

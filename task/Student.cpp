@@ -62,6 +62,7 @@ Student::~Student()
 // Модификатор закрытого поля "m_name"
 void Student::setName(const char* name)
 {
+	delete[]m_name;
 	m_name = new char[strlen(name) + 1];
 	strcpy_s(m_name, strlen(name) + 1, name);
 }
@@ -69,6 +70,7 @@ void Student::setName(const char* name)
 // Модификатор закрытого поля "m_surname"
 void Student::setSurname(const char* surname)
 {
+	delete[]m_surname;
 	m_surname = new char[strlen(surname) + 1];
 	strcpy_s(m_surname, strlen(surname) + 1, surname);
 }

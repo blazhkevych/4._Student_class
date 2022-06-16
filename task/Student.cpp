@@ -19,19 +19,19 @@ Student::Student()
 // Конструктор копирования (нужен при наличии динамических полей в классе)
 Student::Student(const Student& student)
 {
-	int name_strlen = strlen(student.getName()) + 1;
+	int name_strlen = strlen(student.m_name) + 1;
 	m_name = new char[name_strlen];
-	strcpy_s(m_name, name_strlen, student.getName());
+	strcpy_s(m_name, name_strlen, student.m_name);
 
-	int surname_strlen = strlen(student.getSurname()) + 1;
+	int surname_strlen = strlen(student.m_surname) + 1;
 	m_surname = new char[surname_strlen];
-	strcpy_s(m_surname, surname_strlen, student.getSurname());
+	strcpy_s(m_surname, surname_strlen, student.m_surname);
 
-	m_age = student.getAge();
+	m_age = student.m_age;
 
-	strcpy_s(m_phone, sizeof(m_phone), student.getPhone());
+	strcpy_s(m_phone, sizeof(m_phone), student.m_phone);
 
-	m_average = student.getAverage();
+	m_average = student.m_average;
 }
 
 //Конструктор с всеми параметрами (нужен для инициализации всех полей)
@@ -62,8 +62,6 @@ Student::~Student()
 // Модификатор закрытого поля "m_name"
 void Student::setName(const char* name)
 {
-	if (m_name)
-		delete[]m_name;
 	m_name = new char[strlen(name) + 1];
 	strcpy_s(m_name, strlen(name) + 1, name);
 }
@@ -71,8 +69,6 @@ void Student::setName(const char* name)
 // Модификатор закрытого поля "m_surname"
 void Student::setSurname(const char* surname)
 {
-	if (m_surname)
-		delete[]m_surname;
 	m_surname = new char[strlen(surname) + 1];
 	strcpy_s(m_surname, strlen(surname) + 1, surname);
 }
@@ -80,7 +76,6 @@ void Student::setSurname(const char* surname)
 // Модификатор закрытого поля "m_phone"
 void Student::setPhone(const char* phone)
 {
-	memset(m_phone, 0, sizeof(m_phone));
 	strcpy_s(m_phone, strlen(phone) + 1, phone);
 }
 
@@ -110,53 +105,47 @@ void Student::PrintHeader()
 // Функция сохраняет студента в файл
 void SaveStudent(const Student& student)
 {
-	// 2,29,30
-	char fileNameWrite[15]{ "student.data" }; // возможно нужно добавить в конце нультерминатор "\0"
+	char fileNameWrite[15]{ "student.data" };
 	FILE* f_wright{ nullptr };
 	fopen_s(&f_wright, fileNameWrite, "wb");
+	if (f_wright == nullptr)
+	{
+		perror("Error opening");
+		return;
+	}
 
 	// Пишем размер поля "m_name"
 	int name_strlen = strlen(student.getName()) + 1;
 	fwrite(&name_strlen, sizeof(int), 1, f_wright);
 
 	// Пишем значение поля "m_name"
-	char* nameBuffer = new char[name_strlen];
-	memset(nameBuffer, 0, name_strlen); // а нужно ли ?
-	strcpy_s(nameBuffer, name_strlen, student.getName());
-	fwrite(&nameBuffer, name_strlen, 1, f_wright);
+	fwrite(student.getName(), name_strlen, 1, f_wright);
 
 	// Пишем размер поля "m_surname"
 	int surname_strlen = strlen(student.getSurname()) + 1;
 	fwrite(&surname_strlen, sizeof(int), 1, f_wright);
 
 	// Пишем значение поля "m_surname"
-	char* surnameBuffer = new char[surname_strlen];
-	memset(surnameBuffer, 0, surname_strlen); // а нужно ли ?
-	strcpy_s(surnameBuffer, surname_strlen, student.getSurname());
-	fwrite(&surnameBuffer, surname_strlen, 1, f_wright);
+	fwrite(student.getSurname(), surname_strlen, 1, f_wright);
 
 	// Пишем значение поля "m_age"
 	int age = student.getAge();
 	fwrite(&age, sizeof(int), 1, f_wright);
 
 	// Пишем значение поля "m_phone"
-	char phone[15]{ 0 };
-	strcpy_s(phone, sizeof(phone), student.getPhone());
-	fwrite(&phone, 15, 1, f_wright);
+	fwrite(student.getPhone(), 15, 1, f_wright);
 
 	// Пишем значение поля "m_average"
 	double average = student.getAverage();
 	fwrite(&average, sizeof(double), 1, f_wright);
 
-	delete[]nameBuffer;
-	delete[]surnameBuffer;
 	fclose(f_wright);
 }
 
 // Функция читает студента из файла
 void LoadStudent(Student& student)
 {
-	char fileNameRead[15]{ "student.data" }; // возможно нужно добавить в конце нультерминатор "\0"
+	char fileNameRead[15]{ "student.data" };
 	FILE* f_read{ nullptr };
 	fopen_s(&f_read, fileNameRead, "rb");
 	if (f_read == nullptr)
@@ -170,20 +159,18 @@ void LoadStudent(Student& student)
 	fread(&name_strlen, sizeof(int), 1, f_read);
 
 	// Читаем значение поля "m_name"
-	char* nameBuffer = new char[name_strlen];
-	memset(nameBuffer, 0, name_strlen); // а нужно ли ?
-	fread(&nameBuffer, name_strlen, 1, f_read);
-	student.setName(nameBuffer);
+	char* nameBufferRead = new char[name_strlen];
+	fread(nameBufferRead, name_strlen, 1, f_read);
+	student.setName(nameBufferRead);
 
 	// Читаем размер поля "m_surname"
 	int surname_strlen{ 0 };
 	fread(&surname_strlen, sizeof(int), 1, f_read);
 
 	// Читаем значение поля "m_surname"
-	char* surnameBuffer = new char[surname_strlen];
-	memset(surnameBuffer, 0, surname_strlen); // а нужно ли ?
-	fread(&surnameBuffer, surname_strlen, 1, f_read);
-	student.setSurname(surnameBuffer);
+	char* surnameBufferRead = new char[surname_strlen];
+	fread(surnameBufferRead, surname_strlen, 1, f_read);
+	student.setSurname(surnameBufferRead);
 
 	// Читаем значение поля "m_age"
 	int age{ 0 };
@@ -192,7 +179,7 @@ void LoadStudent(Student& student)
 
 	// Читаем значение поля "m_phone"
 	char phone[15]{ 0 };
-	fread(&phone, 15, 1, f_read);
+	fread(phone, 15, 1, f_read);
 	student.setPhone(phone);
 
 	// Читаем значение поля "m_average"
@@ -200,8 +187,8 @@ void LoadStudent(Student& student)
 	fread(&average, sizeof(double), 1, f_read);
 	student.setAverage(average);
 
-	delete[]nameBuffer;
-	delete[]surnameBuffer;
+	delete[]nameBufferRead;
+	delete[]surnameBufferRead;
 	fclose(f_read);
 }
 
